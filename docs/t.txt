@@ -1,0 +1,3 @@
+https://ivs.jd.com/slide/js/jdSlide.1.0.min.js
+https://misc.360buyimg.com/lib/img/e/logo-201305-b.png
+https://misc.360buyimg.com/user/passport/1.0.0/css/tinyscrollbar-170524.css
