@@ -50,7 +50,12 @@ func handle(client net.Conn) {
 
 	var URL string
 	// 从客户端数据读入method，url
-	fmt.Sscanf(string(urlConf.b[:bytes.IndexByte(urlConf.b[:], '\n')]), "%s%s", &urlConf.method, &URL)
+	idx := bytes.IndexByte(urlConf.b[:], '\n')
+	if idx < 1 {
+		log.Printf("Error: proxy protocol wrong")
+		return
+	}
+	fmt.Sscanf(string(urlConf.b[:idx]), "%s%s", &urlConf.method, &URL)
 
 	// 若方法是CONNECT，则为https协议
 	if urlConf.method == "CONNECT" {
@@ -69,8 +74,8 @@ func handle(client net.Conn) {
 		urlConf.address = urlConf.hostURL.Host + ":80"
 	}
 
-	urlConf.domain = strings.Split(urlConf.address, ":")[0]
 	// 解析 domain获得IP
+	urlConf.domain = strings.Split(urlConf.address, ":")[0]
 	ip := domainIP(urlConf.domain)
 
 	// 判断 ip 所在位置: private | cn | oversea
