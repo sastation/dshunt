@@ -40,8 +40,8 @@ func direct(client net.Conn, urlConf URLConf) {
 }
 
 // 转发至后端代理服务器
-func proxy(client net.Conn, urlConf URLConf) {
-	server, err := net.Dial("tcp", conf.proxyHost) //连接代理服务器
+func proxy(client net.Conn, urlConf URLConf, proxy string) {
+	server, err := net.Dial("tcp", proxy) //连接代理服务器
 	if err != nil {
 		fmt.Println(err)
 		return
