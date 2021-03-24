@@ -51,21 +51,22 @@ func handle(client net.Conn) {
 	var URL string
 	// 从客户端数据读入method，url
 	fmt.Sscanf(string(urlConf.b[:bytes.IndexByte(urlConf.b[:], '\n')]), "%s%s", &urlConf.method, &URL)
+
+	// 若方法是CONNECT，则为https协议
+	if urlConf.method == "CONNECT" {
+		URL = "https://" + URL
+	}
+
 	urlConf.hostURL, err = url.Parse(URL)
 	if err != nil {
 		log.Printf("url.Parse error: %s", err)
 		return
 	}
 
-	// 如果方法是CONNECT，则为https协议
-	if urlConf.method == "CONNECT" {
-		urlConf.address = urlConf.hostURL.Scheme + ":" + urlConf.hostURL.Opaque
-	} else { //否则为http协议
-		urlConf.address = urlConf.hostURL.Host
-		// 如果host不带端口，则默认为80
-		if !strings.Contains(urlConf.hostURL.Host, ":") {
-			urlConf.address = urlConf.hostURL.Host + ":80"
-		}
+	urlConf.address = urlConf.hostURL.Host
+	// 若host不带端口，则默认为80
+	if !strings.Contains(urlConf.hostURL.Host, ":") {
+		urlConf.address = urlConf.hostURL.Host + ":80"
 	}
 
 	urlConf.domain = strings.Split(urlConf.address, ":")[0]
@@ -76,7 +77,6 @@ func handle(client net.Conn) {
 	loc := IPLocation(ip)
 
 	info := fmt.Sprintf("%v ==> %s %s [%s]", client.RemoteAddr(), urlConf.method, urlConf.address, loc)
-	//log.Println(info)
 
 	if loc == "CN" || loc == "Private" {
 		log.Printf("%s [direct]\n", info)
