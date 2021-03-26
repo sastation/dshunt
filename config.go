@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -44,12 +46,24 @@ func initConfig() {
 
 // 获取命令行参数
 func parseCMDLine() {
-	flag.StringVar(&conf.cFile, "conf", "rc.conf", "config file, default rc.conf")
+	flag.StringVar(&conf.cFile, "conf", "rc.conf", "config file")
 	flag.BoolVar(&conf.PrintVer, "version", false, "print version")
+
+	var down bool
+	var URL string
+	flag.BoolVar(&down, "down", false, "download cn_ip.txt file")
+	flag.StringVar(&URL, "url", "", "url for cn_ip.txt file (default \"https://github.com/17mon/china_ip_list\")")
+
 	flag.Parse()
 
 	if conf.PrintVer {
 		fmt.Println("ZRouter version: ", version)
+		os.Exit(0)
+	}
+
+	if down {
+		downCNIP(URL)
+		os.Exit(0)
 	}
 }
 
@@ -182,4 +196,28 @@ func domains() {
 	scanFile("reject.txt", "Reject")
 	scanFile("direct.txt", "Direct")
 	scanFile("proxy.txt", "Proxy")
+}
+
+// 下载CN IP列表
+func downCNIP(URL string) {
+	if URL == "" {
+		URL = "https://raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt"
+	}
+
+	resp, err := http.Get(URL)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create("cn_ip.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		panic(err)
+	}
 }
