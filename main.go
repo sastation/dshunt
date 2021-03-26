@@ -11,7 +11,7 @@ import (
 
 func main() {
 	parseConfig()
-	fmt.Println(conf.cFile, conf.listen, conf.proxyHost, conf.dproxyHost, conf.IPFile, conf.PrintVer)
+	fmt.Println(conf.cFile, conf.listen, conf.proxyHost, conf.dproxyHost, conf.cnIPFile, conf.PrintVer)
 
 	// tcp连接，监听 conf.listen
 	fmt.Printf("Listen %s\n", conf.listen)
@@ -74,16 +74,29 @@ func handle(client net.Conn) {
 		urlConf.address = urlConf.hostURL.Host + ":80"
 	}
 
-	// 解析 domain获得IP
+	// 截取域名
 	urlConf.domain = strings.Split(urlConf.address, ":")[0]
-	ip := domainIP(urlConf.domain)
 
-	// 判断 ip 所在位置: private | cn | oversea
-	loc := IPLocation(ip)
+	// 获取域名类型
+	loc := DomainType(urlConf.domain)
+	log.Printf("%s type: %s", urlConf.domain, loc)
 
+	// 判断IP地域
+	if loc == "" {
+		// 解析 domain获得IP
+		ip := domainIP(urlConf.domain)
+		// 判断 ip 所在位置: private | cn | oversea
+		loc = IPLocation(ip)
+	}
+
+	// 根据loc类型进行处理
 	info := fmt.Sprintf("%v ==> %s %s [%s]", client.RemoteAddr(), urlConf.method, urlConf.address, loc)
+	if loc == "Reject" {
+		log.Printf("%s [closed]", info)
+		return
+	}
 
-	if loc == "CN" || loc == "Private" {
+	if loc == "CN" || loc == "Private" || loc == "Direct" {
 		if conf.dproxyHost == "" {
 			log.Printf("%s [direct]\n", info)
 			direct(client, urlConf)

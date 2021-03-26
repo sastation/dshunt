@@ -21,17 +21,15 @@ type DominType struct {
 }
 
 type Config struct {
-	cFile         string
-	listen        string
-	proxyHost     string
-	dproxyHost    string
-	IPFile        string
-	PrintVer      bool
-	cnIPs         []*net.IPNet
-	privateIPs    []*net.IPNet
-	directDomains []DominType
-	proxyDomains  []DominType
-	rejectDomains []DominType
+	cFile      string
+	listen     string
+	proxyHost  string
+	dproxyHost string
+	cnIPFile   string
+	PrintVer   bool
+	cnIPs      []*net.IPNet
+	privateIPs []*net.IPNet
+	Domains    []DominType
 }
 
 var conf Config
@@ -41,7 +39,7 @@ func initConfig() {
 	conf.listen = "127.0.0.1:1234"
 	conf.proxyHost = "s16.lan:8081"
 	conf.dproxyHost = ""
-	conf.IPFile = "china_ip_list.txt"
+	conf.cnIPFile = "cn_ip.txt"
 }
 
 // 获取命令行参数
@@ -103,8 +101,8 @@ func parseConfig() {
 			conf.proxyHost = parseAddress(value)
 		case "dproxy":
 			conf.dproxyHost = parseAddress(value)
-		case "ipfile":
-			conf.IPFile = value
+		case "cnip":
+			conf.cnIPFile = value
 		default:
 			log.Printf("Error: unknow parameter %s\n", key)
 		}
@@ -115,11 +113,12 @@ func parseConfig() {
 
 	privateIP()
 	cnIP()
+	domains()
 }
 
 // 读取conf.IPFile文件内的CN_IP数据
 func cnIP() {
-	fs, err := os.Open(conf.IPFile)
+	fs, err := os.Open(conf.cnIPFile)
 	if err != nil {
 		panic(err)
 	}
@@ -137,6 +136,7 @@ func cnIP() {
 	}
 }
 
+// 私有IP的初始化
 func privateIP() {
 	for _, cidr := range []string{
 		"127.0.0.0/8",    // IPv4 loopback
@@ -154,4 +154,32 @@ func privateIP() {
 		}
 		conf.privateIPs = append(conf.privateIPs, block)
 	}
+}
+
+// 获取直接处理的域名列表与类型
+func domains() {
+	scanFile := func(fileName, fileType string) {
+		fs, err := os.Open(fileName)
+		if err != nil {
+			log.Printf("Didn't Open %s.\n", fileName)
+			return
+		}
+		defer fs.Close()
+
+		buf := bufio.NewScanner(fs)
+		for buf.Scan() {
+			line := buf.Text()
+			conf.Domains = append(conf.Domains, DominType{line, fileType})
+		}
+
+		if buf.Err() != nil {
+			log.Printf("Read %s is wrong.\n", fileName)
+			return
+		}
+		fmt.Printf("%v\n", conf.Domains)
+	}
+
+	scanFile("reject.txt", "Reject")
+	scanFile("direct.txt", "Direct")
+	scanFile("proxy.txt", "Proxy")
 }

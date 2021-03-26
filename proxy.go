@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"net/url"
+	"strings"
 )
 
 /* 代理相关 */
@@ -105,4 +106,20 @@ func isCNIP(ip net.IP) bool {
 		}
 	}
 	return false
+}
+
+// 判断domain是否在conf.Domains列表中，若在则返回其类型，若不在则返回空
+func DomainType(domain string) string {
+	Type := ""
+	for i := 0; i < len(conf.Domains); i++ {
+		item := conf.Domains[i].Domain
+		b1 := strings.HasSuffix(domain, item)
+		b2 := strings.HasSuffix(domain, "."+item)
+		if b1 || b2 {
+			Type = conf.Domains[i].Type
+			break
+		}
+
+	}
+	return Type
 }
