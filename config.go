@@ -15,15 +15,23 @@ const (
 	version = "0.0.1 2021/3/21"
 )
 
+type DominType struct {
+	Domain string
+	Type   string
+}
+
 type Config struct {
-	cFile      string
-	listen     string
-	proxyHost  string
-	dproxyHost string
-	IPFile     string
-	PrintVer   bool
-	cnIPs      []*net.IPNet
-	privateIPs []*net.IPNet
+	cFile         string
+	listen        string
+	proxyHost     string
+	dproxyHost    string
+	IPFile        string
+	PrintVer      bool
+	cnIPs         []*net.IPNet
+	privateIPs    []*net.IPNet
+	directDomains []DominType
+	proxyDomains  []DominType
+	rejectDomains []DominType
 }
 
 var conf Config
@@ -32,7 +40,7 @@ var conf Config
 func initConfig() {
 	conf.listen = "127.0.0.1:1234"
 	conf.proxyHost = "s16.lan:8081"
-	conf.dproxyHost = ":"
+	conf.dproxyHost = ""
 	conf.IPFile = "china_ip_list.txt"
 }
 

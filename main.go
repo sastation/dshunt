@@ -84,7 +84,7 @@ func handle(client net.Conn) {
 	info := fmt.Sprintf("%v ==> %s %s [%s]", client.RemoteAddr(), urlConf.method, urlConf.address, loc)
 
 	if loc == "CN" || loc == "Private" {
-		if conf.dproxyHost == ":" {
+		if conf.dproxyHost == "" {
 			log.Printf("%s [direct]\n", info)
 			direct(client, urlConf)
 		} else {
