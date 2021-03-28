@@ -190,7 +190,6 @@ func domains() {
 			log.Printf("Read %s is wrong.\n", fileName)
 			return
 		}
-		fmt.Printf("%v\n", conf.Domains)
 	}
 
 	scanFile("reject.txt", "Reject")

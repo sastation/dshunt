@@ -1,5 +1,7 @@
+.vscode
 zrouter
 archives
-*bak
+rc.conf
 test*
+*bak
 *old

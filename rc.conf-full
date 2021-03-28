@@ -1,0 +1,18 @@
+# 监听地址，默认为127.0.0.1:1234，设为0.0.0.0可以监听所有，只支持http协议
+listen = http://0.0.0.0:8080
+
+# 后端代理转发服务器，无默认值为必选项，只支持http协议
+proxy = http://10.0.0.1:3128
+
+# 默认为空，只支持http协议，若空_IP直连，非空CN_IP走dproxy指定代理
+#dproxy = http://10.0.0.2:3128
+
+
+# CN段IP地址列表文件名，默认为 cn_ip.txt
+# 可用来源：https://github.com/17mon/china_ip_list
+#cnip = cn_ip.txt
+
+# 另有3个默认文件用于域名管理，为不可更改参数
+# reject.txt - 拒绝域名列表
+# direct.txt - 直连域名列表
+# proxy.txt  - 代理域名列表 

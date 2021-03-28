@@ -23,7 +23,7 @@ func direct(client net.Conn, urlConf URLConf) {
 	//获得了请求的host和port，向服务端发起tcp连接
 	server, err := net.Dial("tcp", urlConf.address)
 	if err != nil {
-		//fmt.Println(err)
+		fmt.Println(err)
 		return
 	}
 	defer server.Close()
@@ -109,7 +109,7 @@ func isCNIP(ip net.IP) bool {
 }
 
 // 判断domain是否在conf.Domains列表中，若在则返回其类型，若不在则返回空
-func DomainType(domain string) string {
+func domainType(domain string) string {
 	Type := ""
 	for i := 0; i < len(conf.Domains); i++ {
 		item := conf.Domains[i].Domain

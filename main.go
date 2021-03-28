@@ -78,8 +78,7 @@ func handle(client net.Conn) {
 	urlConf.domain = strings.Split(urlConf.address, ":")[0]
 
 	// 获取域名类型
-	loc := DomainType(urlConf.domain)
-	log.Printf("%s type: %s", urlConf.domain, loc)
+	loc := domainType(urlConf.domain)
 
 	// 判断IP地域
 	if loc == "" {
